@@ -26,15 +26,17 @@ architecture Behavioral of rom is
                 12 =>        "0010000000000100"   ,    --STR [R0], R1 
                 14 =>        "1111111111111111"   ,    -- HALT
                 others =>   "0000000000000000"
-            );                                         
+            );
+    signal aux: std_logic_vector(N-1 downto 0);                                         
 begin                                                     
     process(clk)                                                          
     begin
         if(rising_edge(clk)) then
-            --if(en = '1') then
-                dout <= rom_memory(conv_integer(addr));                                 
-            --end if;                                    
-        end if;                                         
+            if(en = '1') then
+                aux <= rom_memory(conv_integer(addr));
+            end if;                                    
+        end if; 
+        dout <= rom_memory(conv_integer(addr));                                                     
     end process;
 end Behavioral;
 
