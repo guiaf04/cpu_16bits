@@ -16,18 +16,21 @@ end ram;
 architecture Behavioral of ram is   
     type memory is array(0 to (2**N - 1)) of std_logic_vector(N-1 downto 0);
     signal ram_memory : memory := (others => (others => '0'));
+    signal aux : memory := (others => (others => '0'));
+
 begin
     process(clk)
     begin
     
-    --if(clk'event and clk = '1')then
+    if(rising_edge(clk))then
         if(we = '1') then
-            ram_memory(conv_integer(addr)) <= din;
+            aux(conv_integer(addr)) <= din;
         end if;
-    --end if;   
+    end if;   
+    ram_memory(conv_integer(addr)) <= din;
 
     end process;
-        dout <= ram_memory(conv_integer(addr));
-
+    
+   dout <= ram_memory(conv_integer(addr));
 
 end Behavioral;
