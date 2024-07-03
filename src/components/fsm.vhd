@@ -54,13 +54,17 @@ begin
                 elsif(IR_data(15 downto 12) = "0011") then
                     next_state <= exec_load;
                 elsif(IR_data(15 downto 12) = "0000" and IR_data(1 downto 0) = "11") or -- CMP
-                   IR_data(15 downto 12) = "0100" or     -- ADD
-                   IR_data(15 downto 12) = "0101" or     -- SUB
-                   IR_data(15 downto 12) = "0110" or     -- MUL
-                   IR_data(15 downto 12) = "0111" or     -- AND
-                   IR_data(15 downto 12) = "1000" or     -- ORR
-                   IR_data(15 downto 12) = "1001" or     -- NOT
-                   IR_data(15 downto 12) = "1010" then   -- XOR
+                      IR_data(15 downto 12) = "0100"                                 or     -- ADD
+                      IR_data(15 downto 12) = "0101"                                 or     -- SUB
+                      IR_data(15 downto 12) = "0110"                                 or     -- MUL
+                      IR_data(15 downto 12) = "0111"                                 or     -- AND
+                      IR_data(15 downto 12) = "1000"                                 or     -- ORR
+                      IR_data(15 downto 12) = "1001"                                 or     -- NOT
+                      IR_data(15 downto 12) = "1010"                                 or     -- XOR
+                      IR_data(15 downto 12) = "1011"                                 or     -- SHR
+                      IR_data(15 downto 12) = "1100"                                 or     -- SHL
+                      IR_data(15 downto 12) = "1101"                                 or     -- ROR
+                      IR_data(15 downto 12) = "1110"                                 then   -- ROL
                    
                     next_state <= exec_ula; 
                 else
