@@ -18,12 +18,14 @@ entity datapath is
             RAM_sel   : in std_logic;
  --           Rn        : out std_logic_vector(N-1 downto 0);
             clk       : in std_logic;
-            rst       : in std_logic
+            rst       : in std_logic;
+            Z         : inout std_logic;
+            C         : inout std_logic
             );
 end datapath;
 
 architecture Behavioral of datapath is
-            signal Rm_s, Rn_s, Q_s, Rd_s : std_logic_vector(N-1 downto 0);
+    signal Rm_s, Rn_s, Q_s, Rd_s : std_logic_vector(N-1 downto 0);
 begin
     RAM_addr <= Rm_s;
     RAM_din <= Rn_s when RAM_sel = '0' else
@@ -39,7 +41,10 @@ begin
                 A   => Rm_s,  
                 B   => Rn_s,  
                 op  => ula_op,
-                Q   => Q_s
+                Q   => Q_s,
+                Immed => Immed,
+                Z   => Z,
+                C   => C
             );
     
     Register_file: entity work.register_file
