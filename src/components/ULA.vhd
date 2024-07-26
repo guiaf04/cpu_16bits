@@ -11,8 +11,8 @@ entity ULA is
            op    :  in std_logic_vector(3 downto 0);
            Q     :  out std_logic_vector(N-1 downto 0);
            Immed :  in std_logic_vector(4 downto 0);
-           Z     :  inout std_logic;
-           C     :  inout std_logic 
+           Z     :  out std_logic;
+           C     :  out std_logic 
            );
 end ULA;
 
@@ -20,21 +20,11 @@ architecture Behavioral of ULA is
     signal mux_result: std_logic_vector(2*N - 1 downto 0);
 begin
     mux_result <= A * B;
+    Z <= '1' when (A = B) else '0';
+    C <= '1' when (A < B) else '0';
     process(op)
     begin
         case(op) is
-            when "0000" => 
-                if(A = B) then 
-                    Z <= '1';
-                else 
-                    Z <= '0'; 
-                end if;
-                
-                if(A < B) then
-                    C <= '1';
-                else
-                    C <= '0';
-                end if;
             when "0100" => Q <= A + B;
             when "0101" => Q <= A - B;
             when "0110" => Q <= mux_result(N-1 downto 0);
