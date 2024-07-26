@@ -23,8 +23,8 @@ begin
     begin
     
     rst <= '1';
-    wait for clk_period/2;
-    
+    wait for clk_period/4;
+ 
     rst <= '0';
     wait for 60 * clk_period;
     end process;    
