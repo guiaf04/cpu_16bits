@@ -42,7 +42,7 @@ begin
                 B   => Rn_s,  
                 op  => ula_op,
                 Q   => Q_s,
-                Immed => Immed,
+                Immed => Immed(4 downto 0),
                 Z   => Z,
                 C   => C
             );
