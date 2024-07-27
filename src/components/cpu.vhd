@@ -19,7 +19,6 @@ architecture Behavioral of cpu is
     signal RAM_addr : std_logic_vector(N-1 downto 0); 
     signal RAM_we   : std_logic;
     
-    
     signal Immed    : std_logic_vector(N-1 downto 0);
     signal RAM_sel  : std_logic;
     signal RF_sel   : std_logic_vector(1 downto 0);
@@ -28,9 +27,8 @@ architecture Behavioral of cpu is
     signal Rm_sel   : std_logic_vector(2 downto 0);
     signal Rn_sel   : std_logic_vector(2 downto 0);
     signal ula_op   : std_logic_vector(3 downto 0);
-    
-begin
-              
+    signal Z, C     : std_logic := '0';
+begin      
     datapath: entity work.datapath
                 generic map(N => N)
                 port map(
@@ -46,43 +44,57 @@ begin
                     RAM_din    => RAM_din,
                     RAM_sel    => RAM_sel,
                     clk        => clk     ,
-                    rst        => rst     
+                    rst        => rst     ,
+                    Z          => Z      ,
+                    C          => C
                  );
                      
-control_unit: entity work.control_unit
-                generic map(N => N)
-                port map(
-                  ROM_en      => ROM_en,
-                  clk         => clk,
-                  rst         => rst,
-                  Immed       => Immed,
-                  RAM_sel     => RAM_sel,
-                  RAM_we      => RAM_we,
-                  RF_sel      => RF_sel,
-                  Rd_sel      => Rd_sel,
-                  Rd_wr       => Rd_wr,
-                  Rm_sel      => Rm_sel,
-                  Rn_sel      => Rn_sel,
-                  ula_op      => ula_op,
-                  ROM_dout    => ROM_dout,
-                  ROM_addr    => ROM_addr
-                ); 
-    rom:      entity work.rom
-                generic map(N=>N)
-                port map(
-                    addr   =>   ROM_addr ,
-                    dout   =>   ROM_dout ,
-                    en     =>   ROM_en   ,
-                    clk    =>   clk  
-                );
- 
+    control_unit: entity work.control_unit
+                    generic map(N => N)
+                    port map(
+                      ROM_en      => ROM_en,
+                      clk         => clk,
+                      rst         => rst,
+                      Immed       => Immed,
+                      RAM_sel     => RAM_sel,
+                      RAM_we      => RAM_we,
+                      RF_sel      => RF_sel,
+                      Rd_sel      => Rd_sel,
+                      Rd_wr       => Rd_wr,
+                      Rm_sel      => Rm_sel,
+                      Rn_sel      => Rn_sel,
+                      ula_op      => ula_op,
+                      ROM_dout    => ROM_dout,
+                      ROM_addr    => ROM_addr,
+                      Z           =>Z,
+                      C           =>C
+                    ); 
+                
+    rom:        entity work.rom
+                    generic map(N=>N)
+                    port map(
+                        addr   =>   ROM_addr ,
+                        dout   =>   ROM_dout ,
+                        en     =>   ROM_en   ,
+                        clk    =>   clk  
+                    );
+    IO:       entity work.ram
+                    generic map(N=>N)
+                    port map(
+                        din   => RAM_din,
+                        addr  => RAM_addr,
+                        dout  => RAM_dout,
+                        we    => RAM_we,
+                        clk   => clk
+                    ); 
+    
      ram:     entity work.ram
-                generic map(N=>N)
-                port map(
-                    din   => RAM_din,
-                    addr  => RAM_addr,
-                    dout  => RAM_dout,
-                    we    => RAM_we,
-                    clk   => clk
-                );               
+                    generic map(N=>N)
+                    port map(
+                        din   => RAM_din,
+                        addr  => RAM_addr,
+                        dout  => RAM_dout,
+                        we    => RAM_we,
+                        clk   => clk
+                    );               
 end Behavioral;

@@ -9,7 +9,7 @@ entity control_unit is
        ROM_en   : out std_logic;
        clk      : in std_logic;
        rst      : in std_logic;
-       Immed    : out std_logic_vector(N-1 downto 0);
+       Immed    : inout std_logic_vector(N-1 downto 0);
        RAM_sel  : out std_logic;
        RAM_we   : out std_logic;
        RF_sel   : out std_logic_vector(1 downto 0);
@@ -19,16 +19,22 @@ entity control_unit is
        Rn_sel   : out std_logic_vector(2 downto 0);
        ula_op   : out std_logic_vector(3 downto 0);
        ROM_dout : in  std_logic_vector(N-1 downto 0);
-       ROM_addr : out std_logic_vector(N-1 downto 0)     
+       ROM_addr : out std_logic_vector(N-1 downto 0);
+       Z         : in std_logic;
+       C         : in std_logic     
     );
 end control_unit;
 
 architecture Behavioral of control_unit is
         signal PC_clr, PC_inc : std_logic;
-        signal IR_data  : std_logic_vector(N-1 downto 0);
+        signal IR_data, IR_IN  : std_logic_vector(N-1 downto 0);
         signal IR_load  : std_logic;
-        signal PC_D, PC_Q : std_logic_vector(N-1 downto 0) := (others => '0');
-
+        signal PC_D, PC_Q, aux : std_logic_vector(N-1 downto 0) := (others => '0');
+        signal PC_Mux: std_logic_vector(8 downto 0);
+        signal Immed_en : std_logic;
+        signal Flags_D: std_logic_vector(1 downto 0) := Z & C; 
+        signal Flags_DATA: std_logic_vector(1 downto 0);
+        signal Flags_LOAD: std_logic;
 begin
 
     FSM: entity work.fsm
@@ -49,13 +55,16 @@ begin
               Rd_wr  => Rd_wr  ,
               Rm_sel => Rm_sel ,
               Rn_sel => Rn_sel ,
-              ula_op => ula_op 
+              ula_op => ula_op,
+              Flags_DATA => Flags_DATA,
+              Flags_LOAD => Flags_LOAD,
+              Immed_en => Immed_en
             );
             
     IR: entity work.registrador
                 generic map(N => N)
                 port map(
-                    D     => ROM_dout,
+                    D     => IR_IN,
                     ld    => IR_load,
                     clk   => clk,          
                     rst   => rst,
@@ -71,6 +80,19 @@ begin
                     rst  => PC_clr,
                     Q    => PC_Q
                 );
-    PC_D <= PC_Q + 2;
-    ROM_addr <= PC_Q;                                 
+    
+    Flags: entity work.registrador
+            generic map (N => 2)
+            port map(
+                    D   => Flags_D,
+                    ld  => Flags_LOAD,
+                    clk => clk,
+                    rst => rst,
+                    Q   => Flags_DATA
+                    );                
+    PC_Mux <= Immed(8 downto 0) when Immed_en = '1' else "000000010";
+    Flags_D <= Z & C;
+    PC_D <= PC_Q + PC_mux;
+    ROM_addr <= PC_Q;      
+    IR_IN <= ROM_Dout;                           
 end Behavioral;
