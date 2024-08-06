@@ -22,12 +22,16 @@ entity fsm is
        ula_op   : out std_logic_vector(3 downto 0);
        Flags_data:in std_logic_vector(1 downto 0);
        Flags_load:out std_logic; 
-       Immed_en : out std_logic := '0'
+       Immed_en : out std_logic := '0';
+       IO_en    : out std_logic;
+       IO_sel   : out std_logic;
+       stack_en : out std_logic;                  
+       stack_op : out std_logic_vector(1 downto 0)
     ); 
 end fsm;
 
 architecture Behavioral of fsm is
-    type estados is (init, fetch, decode, exec_nop, exec_halt, exec_mov, exec_load, exec_store, exec_ula, exec_stack, exec_jmp, exec_e_s);
+    type estados is (init, fetch, decode, exec_nop, exec_halt, exec_mov, exec_load, exec_store, exec_ula, exec_stack, exec_jmp, exec_IO);
     signal next_state : estados;
     signal present_state: estados;
 begin
@@ -75,7 +79,9 @@ begin
                    
                     next_state <= exec_ula; 
                 elsif(IR_data(15 downto 12) = "1111") then    
-                    next_state <= exec_e_s;
+                    next_state <= exec_IO;
+                elsif(IR_data(15 downto 11) = "0000" and (IR_data(1 downto 0) = "01" or IR_data(1 downto 0) = "10")) then
+                    next_state <= exec_stack;
                 else
                     next_state <= exec_nop;                                  
                 end if;
@@ -85,9 +91,9 @@ begin
             when exec_load  => next_state <= fetch;
             when exec_store => next_state <= fetch;
             when exec_ula   => next_state <= fetch;
-            when exec_stack   => next_state <= fetch;
+            when exec_stack => next_state <= fetch;
             when exec_jmp   => next_state <= fetch;
-            when exec_e_s   => next_state <= fetch;
+            when exec_IO    => next_state <= fetch;
         end case;   
    end process;
    
@@ -99,16 +105,22 @@ begin
                 PC_inc    <= '0';
                 ROM_en    <= '1';
                 IR_load   <= '0';
-                immed     <= x"0000";
                 RAM_sel   <= '0';
                 RAM_we    <= '0';
-                RF_sel    <= "00";
-                Rd_sel    <= "000";
-                Rd_wr     <= '0';
+                
                 Rm_sel    <= "000";
                 Rn_sel    <= "000";
                 ula_op    <= "0000";
                 Flags_load <= '0';
+                Rd_sel    <= "000";
+                Rd_wr     <= '0';  
+                RF_sel    <= "00";
+                
+                Immed_en <= '1';                
+                immed     <= x"FFF0";
+                stack_en <= '1';
+                stack_op <= "00";
+                
             when fetch  =>
                 PC_clr    <= '0';
                 PC_inc    <= '1';
@@ -118,12 +130,10 @@ begin
                 RAM_sel   <= '0';
                 RAM_we    <= '1';
                 RF_sel    <= "00";
-                Rd_sel    <= "000";
                 Rd_wr     <= '0';
-                Rm_sel    <= "000";
-                Rn_sel    <= "000";
                 ula_op    <= "0000"; 
                 Flags_LOAD <= '0';
+                stack_en <= '0';
                 Immed_en <= '0';
             when decode => 
                 Immed_en <= '0';
@@ -132,7 +142,7 @@ begin
                 IR_load   <= '0';
                 Rd_sel <= IR_data(10 downto 8);
                 Rm_sel <= IR_data(7 downto 5);
-                Rn_sel <= IR_data(4 downto 2);       
+                Rn_sel <= IR_data(4 downto 2);    
             when exec_mov   => 
                 Rd_wr <= '1';
                 Ram_we <= '1';
@@ -173,8 +183,34 @@ begin
                     Rom_en <= '1';
                     PC_inc <= '1';
                 end if;
+            when exec_IO =>
+                IO_sel <= '1';
+                IO_en  <= '1';
+                if(IR_data(11) = '0' and IR_data(1 downto 0) = "10") then --Out Rn
+                  Immed_en <= '0';
+                  Rm_sel <= IR_data(7 downto 5);
+                elsif(IR_data(11) = '1' and IR_data(7 downto 5) = "000") then --Out Immed
+                  Immed_en <= '1';
+                  Immed <= x"00" & IR_data(10 downto 8) & IR_data(4 downto 0); --In 
+                else
+                  Rd_sel <= IR_data(10 downto 8);
+                  Immed_en <= '0';
+                end if;
+            when exec_stack =>
+                Rn_sel <= IR_data(4 downto 2);
+                stack_en <= '1';
+                immed_en <= '0';
+                if(IR_DATA(1 downto 0) = "01") then
+                    stack_op <= "01";
+                elsif(IR_DATA(1 downto 0) = "10") then
+                    stack_op <= "10";
+                    Rd_sel <= IR_data(10 downto 8);
+                    Rd_wr <= '1';
+                    Rf_sel <= "01";
+                else
+                    stack_op <= "00";
+                end if;
             when others =>
-               
         end case;   
    end process;
 

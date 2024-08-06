@@ -37,7 +37,7 @@ begin
                     Q   => register_result(i)
                     );  
     end generate;
-
+    
     Rm <= register_result(conv_integer(Rm_sel));
     Rn <= register_result(conv_integer(Rn_sel));    
 

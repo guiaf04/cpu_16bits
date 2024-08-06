@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
 
 entity datapath is
     generic (N : integer := 16);
@@ -20,20 +21,28 @@ entity datapath is
             clk       : in std_logic;
             rst       : in std_logic;
             Z         : inout std_logic;
-            C         : inout std_logic
+            C         : inout std_logic;
+            stack_en  : in std_logic;
+            stack_op  : in std_logic_vector(1 downto 0);
+            immed_en  : in std_logic
             );
 end datapath;
 
 architecture Behavioral of datapath is
-    signal Rm_s, Rn_s, Q_s, Rd_s : std_logic_vector(N-1 downto 0);
+    signal Rm_s, Rn_s, Q_s, Rd_s, D_sp, Q_sp: std_logic_vector(N-1 downto 0);
 begin
-    RAM_addr <= Rm_s;
+    RAM_addr <= Rm_s when stack_en = '0' else
+                Q_SP - 1 when stack_op = "10" else
+                Q_SP;
     RAM_din <= Rn_s when RAM_sel = '0' else
                Immed;
     Rd_s <= Rm_s     when Rf_sel = "00" else
             RAM_dout when RF_sel = "01" else    
             Immed    when RF_sel = "10" else
             Q_s ;
+                                    
+    D_SP <= Immed when immed_en = '1' else
+            Q_SP;                                
                                       
     ULA: entity work.ULA
             generic map (N => N)
@@ -59,6 +68,16 @@ begin
                         Rd_wr  => Rd_wr,
                         clk    => clk,
                         rst    => rst             
-                    );        
+                    );   
+     SP:entity work.SP
+                    generic map(N => N)
+                    port map(
+                         D   => D_sp,
+                         Q   => Q_sp,
+                         rst => rst,
+                         clk => clk,
+                         en  => stack_en,
+                         op  => stack_op
+                    );                
 
 end Behavioral;

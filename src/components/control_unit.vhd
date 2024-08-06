@@ -20,8 +20,11 @@ entity control_unit is
        ula_op   : out std_logic_vector(3 downto 0);
        ROM_dout : in  std_logic_vector(N-1 downto 0);
        ROM_addr : out std_logic_vector(N-1 downto 0);
-       Z         : in std_logic;
-       C         : in std_logic     
+       Z        : in std_logic;
+       C        : in std_logic;
+       stack_en : out std_logic;                  
+       stack_op : out std_logic_vector(1 downto 0);
+       immed_en : inout std_logic     
     );
 end control_unit;
 
@@ -31,7 +34,6 @@ architecture Behavioral of control_unit is
         signal IR_load  : std_logic;
         signal PC_D, PC_Q, aux : std_logic_vector(N-1 downto 0) := (others => '0');
         signal PC_Mux: std_logic_vector(8 downto 0);
-        signal Immed_en : std_logic;
         signal Flags_D: std_logic_vector(1 downto 0) := Z & C; 
         signal Flags_DATA: std_logic_vector(1 downto 0);
         signal Flags_LOAD: std_logic;
@@ -58,7 +60,9 @@ begin
               ula_op => ula_op,
               Flags_DATA => Flags_DATA,
               Flags_LOAD => Flags_LOAD,
-              Immed_en => Immed_en
+              Immed_en => Immed_en,
+              stack_en => stack_en,
+              stack_op => stack_op 
             );
             
     IR: entity work.registrador

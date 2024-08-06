@@ -28,25 +28,31 @@ architecture Behavioral of cpu is
     signal Rn_sel   : std_logic_vector(2 downto 0);
     signal ula_op   : std_logic_vector(3 downto 0);
     signal Z, C     : std_logic := '0';
+    signal stack_en : std_logic;                  
+    signal stack_op : std_logic_vector(1 downto 0);
+    signal immed_en : std_logic;
 begin      
     datapath: entity work.datapath
                 generic map(N => N)
                 port map(
-                    RAM_dout   => RAM_dout,
-                    Immed      => Immed   ,
-                    Rf_sel     => Rf_sel  ,
-                    Rd_sel     => Rd_sel  ,
-                    Rd_wr      => Rd_wr   ,
-                    Rm_sel     => Rm_sel  ,
-                    Rn_sel     => Rn_sel  ,
-                    ula_op     => ula_op  ,
-                    RAM_addr   => RAM_addr,
-                    RAM_din    => RAM_din,
-                    RAM_sel    => RAM_sel,
-                    clk        => clk     ,
-                    rst        => rst     ,
-                    Z          => Z      ,
-                    C          => C
+                    RAM_dout => RAM_dout,
+                    Immed    => Immed   ,
+                    Rf_sel   => Rf_sel  ,
+                    Rd_sel   => Rd_sel  ,
+                    Rd_wr    => Rd_wr   ,
+                    Rm_sel   => Rm_sel  ,
+                    Rn_sel   => Rn_sel  ,
+                    ula_op   => ula_op  ,
+                    RAM_addr => RAM_addr,
+                    RAM_din  => RAM_din ,
+                    RAM_sel  => RAM_sel ,
+                    clk      => clk     ,
+                    rst      => rst     ,
+                    Z        => Z       ,
+                    C        => C       ,
+                    stack_en => stack_en,
+                    stack_op => stack_op,
+                    immed_en => immed_en
                  );
                      
     control_unit: entity work.control_unit
@@ -67,7 +73,10 @@ begin
                       ROM_dout    => ROM_dout,
                       ROM_addr    => ROM_addr,
                       Z           =>Z,
-                      C           =>C
+                      C           =>C,
+                      stack_en => stack_en,
+                      stack_op => stack_op,
+                      immed_en => immed_en
                     ); 
                 
     rom:        entity work.rom
