@@ -19,13 +19,23 @@ This cpu contain:
 * Memory access 
 * Aritmetich operations
 * 16 bits instruction (like MIPS)
+* Stack Operations
+* IO operations
+* Control flux operations
+* The new version includes a IO module as a RAM and a especific register for the stack operations, the SP (stack pointer)
 
 ## Instructions
 
+First version
 ![Instructions](documentation/Especificação.png)
+Second version, with the same as the first and more
+![Instructions2](documentation/specification2.png)
 
 * This processor has load, store and mov operations with immediate values and ram values
-* Also has 6 basic operations with ALU
+* Also has 11 operations with ALU
+* Control flux of program with jmp operations
+* IO Operations
+* Stack operations
 
 ## FSM
 
@@ -43,7 +53,7 @@ Values of each fsm state
 
 * The ROM of this repository contain some sequence of instructions pre defined
 * For testing your program, is recommended modify the values for varied sequence of instructions
-* This processor is testing by the following sequence of instructions 
+* This processor is testing by the following sequence of instructions
     * MOV R0, 0x02  
     * LDR R1, [R0]
     * MOV R0, 0x04
@@ -52,6 +62,7 @@ Values of each fsm state
     * MOV R0, 0X06  
     * STR [R0], R1 
     *  HALT
+* But, also sequence of valid instruction can run since the correct binary(oh hexadecimal) value be provided 
         
 ## Tests
 * All components were tested individually with their respective testbenches and their integrations were tested on the CPU testbench
