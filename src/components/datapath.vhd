@@ -5,7 +5,6 @@ use ieee.std_logic_unsigned.all;
 entity datapath is
     generic (N : integer := 16);
     Port ( 
---            Rm        : out std_logic_vector(N-1 downto 0);
             RAM_dout  : in std_logic_vector(N-1 downto 0);
             Immed     : in std_logic_vector(N-1 downto 0);
             Rf_sel    : in std_logic_vector(1 downto 0);
@@ -17,14 +16,16 @@ entity datapath is
             RAM_addr  : out std_logic_vector(N-1 downto 0);
             RAM_din   : out std_logic_vector(N-1 downto 0);
             RAM_sel   : in std_logic;
- --           Rn        : out std_logic_vector(N-1 downto 0);
             clk       : in std_logic;
             rst       : in std_logic;
             Z         : inout std_logic;
             C         : inout std_logic;
             stack_en  : in std_logic;
             stack_op  : in std_logic_vector(1 downto 0);
-            immed_en  : in std_logic
+            immed_en  : in std_logic;
+            IO_dout   : in std_logic_vector(N-1 downto 0);
+            IO_en     : in std_logic;
+            IO_sel    : in std_logic
             );
 end datapath;
 
@@ -37,7 +38,8 @@ begin
     RAM_din <= Rn_s when RAM_sel = '0' else
                Immed;
     Rd_s <= Rm_s     when Rf_sel = "00" else
-            RAM_dout when RF_sel = "01" else    
+            RAM_dout when RF_sel = "01" and IO_sel = '0' else
+            IO_dout  when RF_sel = "01" and IO_sel = '1' else    
             Immed    when RF_sel = "10" else
             Q_s ;
                                     

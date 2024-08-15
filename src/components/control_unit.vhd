@@ -24,7 +24,9 @@ entity control_unit is
        C        : in std_logic;
        stack_en : out std_logic;                  
        stack_op : out std_logic_vector(1 downto 0);
-       immed_en : inout std_logic     
+       immed_en : inout std_logic;
+       IO_en    : out std_logic;
+       IO_sel   : out std_logic     
     );
 end control_unit;
 
@@ -62,7 +64,9 @@ begin
               Flags_LOAD => Flags_LOAD,
               Immed_en => Immed_en,
               stack_en => stack_en,
-              stack_op => stack_op 
+              stack_op => stack_op,
+              IO_en    => IO_en,
+              IO_sel   => IO_sel 
             );
             
     IR: entity work.registrador

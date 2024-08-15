@@ -31,6 +31,11 @@ architecture Behavioral of cpu is
     signal stack_en : std_logic;                  
     signal stack_op : std_logic_vector(1 downto 0);
     signal immed_en : std_logic;
+    
+    signal IO_en    : std_logic;
+    signal IO_sel   : std_logic;
+    signal IO_dout  : std_logic_vector(N-1 downto 0);
+
 begin      
     datapath: entity work.datapath
                 generic map(N => N)
@@ -52,7 +57,10 @@ begin
                     C        => C       ,
                     stack_en => stack_en,
                     stack_op => stack_op,
-                    immed_en => immed_en
+                    immed_en => immed_en,
+                    IO_dout  => IO_dout,
+                    IO_en    => IO_en  ,
+                    IO_sel   => IO_sel 
                  );
                      
     control_unit: entity work.control_unit
@@ -76,7 +84,9 @@ begin
                       C           =>C,
                       stack_en => stack_en,
                       stack_op => stack_op,
-                      immed_en => immed_en
+                      immed_en => immed_en,
+                      IO_en    => IO_en,
+                      IO_sel   => IO_sel 
                     ); 
                 
     rom:        entity work.rom
@@ -92,8 +102,8 @@ begin
                     port map(
                         din   => RAM_din,
                         addr  => RAM_addr,
-                        dout  => RAM_dout,
-                        we    => RAM_we,
+                        dout  => IO_dout,
+                        we    => IO_en,
                         clk   => clk
                     ); 
     

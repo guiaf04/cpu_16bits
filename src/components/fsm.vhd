@@ -186,14 +186,15 @@ begin
             when exec_IO =>
                 IO_sel <= '1';
                 IO_en  <= '1';
-                if(IR_data(11) = '0' and IR_data(1 downto 0) = "10") then --Out Rn
+                if(IR_data(11) = '0' and IR_data(1 downto 0) = "10") then     --Out Rn
                   Immed_en <= '0';
                   Rm_sel <= IR_data(7 downto 5);
                 elsif(IR_data(11) = '1' and IR_data(7 downto 5) = "000") then --Out Immed
                   Immed_en <= '1';
-                  Immed <= x"00" & IR_data(10 downto 8) & IR_data(4 downto 0); --In 
-                else
+                  Immed <= x"00" & IR_data(10 downto 8) & IR_data(4 downto 0);  
+                else                                                           --In
                   Rd_sel <= IR_data(10 downto 8);
+                  RF_sel <= "10";
                   Immed_en <= '0';
                 end if;
             when exec_stack =>
